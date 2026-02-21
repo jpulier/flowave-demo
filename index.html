@@ -3,963 +3,963 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flowave SMS Lead Qualification Demo</title>
+<title>Flowave — Free Personal Injury Case Review</title>
+<meta name="description" content="Find out in minutes if you have a personal injury case — at no cost to you, ever. Free, confidential case reviews by real people.">
 <style>
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap');
 
-body {
-  background: #0a0a0a;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  overflow: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.phone-frame {
-  width: 390px;
-  height: 844px;
-  background: #000;
-  border-radius: 50px;
-  border: 3px solid #2a2a2a;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 0 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255,255,255,0.05);
-  display: flex;
-  flex-direction: column;
-}
-
-/* Notch */
-.notch {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 160px;
-  height: 34px;
-  background: #000;
-  border-radius: 0 0 20px 20px;
-  z-index: 100;
-}
-.notch::before {
-  content: '';
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 6px;
-  background: #1a1a1a;
-  border-radius: 3px;
-}
-.notch-camera {
-  position: absolute;
-  top: 8px;
-  right: 30px;
-  width: 10px;
-  height: 10px;
-  background: #0c1a2a;
-  border-radius: 50%;
-  border: 1.5px solid #1a2a3a;
-}
-
-/* Status bar */
-.status-bar {
-  height: 54px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: 0 28px 6px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #fff;
-  flex-shrink: 0;
-  z-index: 50;
-}
-.status-bar-left { width: 60px; text-align: left; }
-.status-bar-right { width: 80px; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
-.battery-icon {
-  width: 22px; height: 10px;
-  border: 1px solid rgba(255,255,255,0.5);
-  border-radius: 2px;
-  position: relative;
-  display: inline-block;
-}
-.battery-icon::before {
-  content: '';
-  position: absolute;
-  top: 2px; left: 2px;
-  width: 15px; height: 4px;
-  background: #34c759;
-  border-radius: 1px;
-}
-.battery-icon::after {
-  content: '';
-  position: absolute;
-  top: 2px; right: -4px;
-  width: 2px; height: 5px;
-  background: rgba(255,255,255,0.3);
-  border-radius: 0 1px 1px 0;
-}
-.signal-bars { display: flex; align-items: flex-end; gap: 1.5px; height: 10px; }
-.signal-bar { width: 3px; background: #fff; border-radius: 1px; }
-.signal-bar:nth-child(1) { height: 3px; }
-.signal-bar:nth-child(2) { height: 5px; }
-.signal-bar:nth-child(3) { height: 7px; }
-.signal-bar:nth-child(4) { height: 10px; }
-
-/* Header */
-.chat-header {
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  padding: 8px 16px 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 0.5px solid rgba(255,255,255,0.08);
-  flex-shrink: 0;
-  z-index: 50;
-}
-.header-back {
-  color: #0a84ff;
-  font-size: 22px;
-  font-weight: 300;
-  cursor: pointer;
-}
-.header-avatar {
-  width: 38px;
-  height: 38px;
-  background: linear-gradient(135deg, #1e88e5, #0d47a1);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 700;
-  color: #fff;
-  position: relative;
-  flex-shrink: 0;
-}
-.online-dot {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 11px;
-  height: 11px;
-  background: #34c759;
-  border-radius: 50%;
-  border: 2px solid #000;
-}
-.header-info { flex: 1; }
-.header-name {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.2;
-}
-.header-sub {
-  color: rgba(255,255,255,0.45);
-  font-size: 12px;
-  line-height: 1.3;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.lock-icon { font-size: 10px; }
-.header-actions { display: flex; gap: 16px; }
-.header-action { color: #0a84ff; font-size: 20px; cursor: pointer; }
-
-/* Chat area */
-.chat-area {
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px 12px 8px;
-  display: flex;
-  flex-direction: column;
+html {
   scroll-behavior: smooth;
 }
-.chat-area::-webkit-scrollbar { width: 0; }
 
-.timestamp-divider {
-  text-align: center;
-  color: rgba(255,255,255,0.35);
-  font-size: 11px;
-  font-weight: 500;
-  margin: 8px 0 12px;
-}
-
-.message-row {
-  display: flex;
-  margin-bottom: 4px;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: msgIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-@keyframes msgIn {
-  to { opacity: 1; transform: translateY(0); }
-}
-.message-row.incoming { justify-content: flex-start; }
-.message-row.outgoing { justify-content: flex-end; }
-
-.message-bubble {
-  max-width: 78%;
-  padding: 9px 14px;
-  border-radius: 18px;
-  font-size: 15.5px;
-  line-height: 1.35;
-  word-wrap: break-word;
-  position: relative;
-}
-.incoming .message-bubble {
-  background: #1c1c1e;
-  color: #fff;
-  border-bottom-left-radius: 6px;
-}
-.outgoing .message-bubble {
-  background: #0084ff;
-  color: #fff;
-  border-bottom-right-radius: 6px;
+body {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  color: #FFFFFF;
+  background: #0A1628;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
 }
 
-/* Tail shapes */
-.message-row.incoming + .message-row.incoming .message-bubble { border-bottom-left-radius: 18px; }
-.message-row.incoming:last-of-type .message-bubble,
-.message-row.incoming + .message-row.outgoing ~ .message-row.incoming .message-bubble { border-bottom-left-radius: 6px; }
-
-/* Typing indicator */
-.typing-indicator {
-  display: none;
-  margin-bottom: 4px;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: msgIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.typing-indicator.visible { display: flex; }
-.typing-bubble {
-  background: #1c1c1e;
-  padding: 12px 16px;
-  border-radius: 18px;
-  border-bottom-left-radius: 6px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.typing-dot {
-  width: 7px;
-  height: 7px;
-  background: rgba(255,255,255,0.4);
-  border-radius: 50%;
-  animation: typingBounce 1.4s ease-in-out infinite;
-}
-.typing-dot:nth-child(2) { animation-delay: 0.2s; }
-.typing-dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes typingBounce {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-  30% { transform: translateY(-5px); opacity: 1; }
-}
-
-.typing-label {
-  color: rgba(255,255,255,0.35);
-  font-size: 11px;
-  padding: 0 4px 6px;
-  display: none;
-}
-.typing-label.visible { display: block; }
-
-/* Input bar */
-.input-bar {
-  padding: 8px 12px 34px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #000;
-  border-top: 0.5px solid rgba(255,255,255,0.08);
-  flex-shrink: 0;
-}
-.input-field {
-  flex: 1;
-  background: rgba(255,255,255,0.08);
-  border: 0.5px solid rgba(255,255,255,0.12);
-  border-radius: 20px;
-  padding: 10px 16px;
-  color: #fff;
-  font-size: 16px;
-  font-family: inherit;
-  outline: none;
-  caret-color: #0a84ff;
-}
-.input-field::placeholder { color: rgba(255,255,255,0.3); }
-.input-field:focus { border-color: rgba(255,255,255,0.2); }
-.send-btn {
-  width: 34px;
-  height: 34px;
-  background: #0a84ff;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: transform 0.15s, opacity 0.15s;
-}
-.send-btn:active { transform: scale(0.9); }
-.send-btn:disabled { opacity: 0.35; cursor: default; }
-.send-btn svg { width: 18px; height: 18px; fill: #fff; }
-
-/* Lead report card */
-.report-card {
-  background: #1c1c1e;
-  border-radius: 16px;
-  overflow: hidden;
-  max-width: 92%;
-  margin: 8px 0;
-  opacity: 0;
-  transform: translateY(20px) scale(0.95);
-  animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
-}
-@keyframes cardIn {
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-.report-header {
-  padding: 16px 18px;
-  text-align: center;
-}
-.report-header.tier-a { background: linear-gradient(135deg, #1b5e20, #2e7d32); }
-.report-header.tier-b { background: linear-gradient(135deg, #0d47a1, #1565c0); }
-.report-header.tier-c { background: linear-gradient(135deg, #e65100, #f57c00); }
-.report-header.tier-d { background: linear-gradient(135deg, #b71c1c, #c62828); }
-.report-title {
-  font-size: 11px;
+h1, h2, h3, h4 {
+  font-family: 'Playfair Display', serif;
   font-weight: 700;
-  letter-spacing: 2px;
-  color: rgba(255,255,255,0.85);
-  text-transform: uppercase;
-  margin-bottom: 8px;
+  line-height: 1.2;
 }
-.report-tier {
-  font-size: 48px;
-  font-weight: 800;
-  color: #fff;
-  line-height: 1;
+
+a {
+  text-decoration: none;
+  color: inherit;
 }
-.report-tier-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.7);
-  margin-top: 4px;
+
+img {
+  max-width: 100%;
 }
-.report-body { padding: 16px 18px; }
-.report-row {
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ========================================
+   SECTION 1 — STICKY HEADER
+   ======================================== */
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #0A1628;
+  border-bottom: 2px solid #C9A84C;
+  padding: 16px 0;
+}
+
+.header .container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
-  border-bottom: 0.5px solid rgba(255,255,255,0.06);
-}
-.report-row:last-child { border-bottom: none; }
-.report-label {
-  font-size: 12px;
-  color: rgba(255,255,255,0.5);
-  font-weight: 500;
-}
-.report-value {
-  font-size: 13px;
-  color: #fff;
-  font-weight: 600;
-  text-align: right;
 }
 
-.score-bar-container {
-  width: 100%;
-  margin-top: 4px;
-}
-.score-bar-track {
-  width: 100%;
-  height: 6px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.score-bar-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
-  width: 0;
-}
-.score-bar-fill.tier-a { background: linear-gradient(90deg, #43a047, #66bb6a); }
-.score-bar-fill.tier-b { background: linear-gradient(90deg, #1565c0, #42a5f5); }
-.score-bar-fill.tier-c { background: linear-gradient(90deg, #f57c00, #ffb74d); }
-.score-bar-fill.tier-d { background: linear-gradient(90deg, #c62828, #ef5350); }
-
-.report-routing {
-  background: rgba(255,255,255,0.04);
-  border-radius: 10px;
-  padding: 10px 14px;
-  margin-top: 10px;
-}
-.report-routing-label {
-  font-size: 10px;
+.header-logo {
+  font-family: 'Playfair Display', serif;
   font-weight: 700;
-  letter-spacing: 1.5px;
-  color: rgba(255,255,255,0.35);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-.report-routing-value {
-  font-size: 12px;
-  color: #fff;
-  font-weight: 500;
-  line-height: 1.4;
+  font-size: 28px;
+  color: #C9A84C;
 }
 
-.report-footer {
-  padding: 14px 18px;
-  border-top: 0.5px solid rgba(255,255,255,0.06);
+.header-cta {
+  display: inline-block;
+  background: #C9A84C;
+  color: #0A1628;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 24px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
 }
-.report-attribution {
-  font-size: 10px;
-  color: rgba(255,255,255,0.3);
+
+.header-cta:hover {
+  background: #d4b65e;
+  transform: translateY(-1px);
+}
+
+/* ========================================
+   SECTION 2 — HERO
+   ======================================== */
+
+.hero {
+  background: #0A1628;
+  padding: 140px 0 80px;
   text-align: center;
+}
+
+.hero h1 {
+  font-size: 48px;
+  color: #FFFFFF;
+  max-width: 800px;
+  margin: 0 auto 24px;
+}
+
+.hero-sub {
+  font-size: 20px;
+  color: #B0B8C8;
+  max-width: 600px;
+  margin: 0 auto 40px;
+}
+
+.hero-cta {
+  display: inline-block;
+  background: #C9A84C;
+  color: #0A1628;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  padding: 16px 40px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  margin-bottom: 16px;
+}
+
+.hero-cta:hover {
+  background: #d4b65e;
+  transform: translateY(-2px);
+}
+
+.hero-text-line {
+  font-size: 15px;
+  color: #8A94A6;
+  margin-bottom: 40px;
+}
+
+.trust-bar {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  font-size: 14px;
+  color: #8A94A6;
+}
+
+.trust-bar span {
+  white-space: nowrap;
+}
+
+.trust-bar .dot {
+  color: #C9A84C;
+}
+
+/* ========================================
+   SECTION 3 — HOW IT WORKS
+   ======================================== */
+
+.how-it-works {
+  background: #FFFFFF;
+  padding: 80px 0;
+}
+
+.how-it-works h2 {
+  text-align: center;
+  font-size: 36px;
+  color: #0A1628;
+  margin-bottom: 60px;
+}
+
+.steps {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+}
+
+.step {
+  flex: 1;
+  max-width: 300px;
+  text-align: center;
+}
+
+.step-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 56px;
+  font-weight: 700;
+  color: #C9A84C;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+.step-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #0A1628;
   margin-bottom: 12px;
 }
-.restart-btn {
-  width: 100%;
-  padding: 12px;
-  background: rgba(255,255,255,0.08);
-  border: none;
+
+.step-body {
+  font-size: 15px;
+  color: #5A6577;
+  line-height: 1.6;
+}
+
+/* ========================================
+   SECTION 4 — THE FORM
+   ======================================== */
+
+.form-section {
+  background: #F4F6F9;
+  padding: 80px 0;
+}
+
+.form-section h2 {
+  text-align: center;
+  font-size: 36px;
+  color: #0A1628;
+  margin-bottom: 12px;
+}
+
+.form-section-sub {
+  text-align: center;
+  font-size: 16px;
+  color: #5A6577;
+  margin-bottom: 48px;
+}
+
+.form-card {
+  background: #FFFFFF;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px;
   border-radius: 12px;
-  color: #0a84ff;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
   font-size: 14px;
   font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background 0.2s;
+  color: #0A1628;
+  margin-bottom: 6px;
 }
-.restart-btn:hover { background: rgba(255,255,255,0.12); }
-.restart-btn:active { background: rgba(255,255,255,0.06); }
 
-/* End card (for non-qualified leads) */
-.end-card {
-  background: #1c1c1e;
-  border-radius: 14px;
-  padding: 20px;
-  max-width: 80%;
-  margin: 8px 0;
-  text-align: center;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: msgIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  padding: 12px 16px;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #0A1628;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
 }
-.end-card-icon { font-size: 28px; margin-bottom: 8px; }
-.end-card-text { color: rgba(255,255,255,0.55); font-size: 13px; line-height: 1.4; margin-bottom: 14px; }
-.end-restart-btn {
-  padding: 10px 24px;
-  background: rgba(255,255,255,0.08);
-  border: none;
-  border-radius: 10px;
-  color: #0a84ff;
+
+.form-group input::placeholder,
+.form-group select::placeholder,
+.form-group textarea::placeholder {
+  color: #9CA3AF;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #C9A84C;
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.form-group .microcopy {
   font-size: 13px;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background 0.2s;
+  color: #8A94A6;
+  margin-top: 4px;
 }
-.end-restart-btn:hover { background: rgba(255,255,255,0.12); }
 
-/* Responsive */
-@media (max-height: 880px) {
-  .phone-frame { height: 95vh; border-radius: 40px; }
+.tcpa-text {
+  font-size: 12px;
+  color: #8A94A6;
+  text-align: center;
+  margin-bottom: 20px;
+  line-height: 1.5;
 }
-@media (max-width: 420px) {
-  .phone-frame { width: 100vw; height: 100vh; border-radius: 0; border: none; }
-  .notch { display: none; }
-  .status-bar { height: 44px; }
+
+.form-submit {
+  width: 100%;
+  background: #C9A84C;
+  color: #0A1628;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  padding: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  margin-bottom: 16px;
+}
+
+.form-submit:hover {
+  background: #d4b65e;
+  transform: translateY(-1px);
+}
+
+.form-security {
+  text-align: center;
+  font-size: 13px;
+  color: #8A94A6;
+}
+
+.form-error {
+  color: #DC2626;
+  font-size: 13px;
+  margin-top: 4px;
+  display: none;
+}
+
+.form-group.error input,
+.form-group.error select {
+  border-color: #DC2626;
+}
+
+.form-group.error .form-error {
+  display: block;
+}
+
+/* Success state */
+.form-success {
+  display: none;
+  text-align: center;
+  background: #0A1628;
+  padding: 60px 40px;
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-success.active {
+  display: block;
+}
+
+.form-success .checkmark {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.form-success h3 {
+  font-size: 32px;
+  color: #FFFFFF;
+  margin-bottom: 16px;
+}
+
+.form-success p {
+  font-size: 17px;
+  color: #B0B8C8;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.form-success .success-note {
+  font-size: 14px;
+  color: #8A94A6;
+}
+
+/* ========================================
+   SECTION 5 — SOCIAL PROOF
+   ======================================== */
+
+.social-proof {
+  background: #0A1628;
+  padding: 80px 0;
+}
+
+.social-proof h2 {
+  text-align: center;
+  font-size: 36px;
+  color: #C9A84C;
+  margin-bottom: 48px;
+}
+
+.testimonials {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+.testimonial-card {
+  flex: 1;
+  background: #0E1D35;
+  border-left: 4px solid #C9A84C;
+  border-radius: 8px;
+  padding: 28px;
+}
+
+.testimonial-card .quote {
+  font-size: 15px;
+  color: #FFFFFF;
+  line-height: 1.7;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+.testimonial-card .attribution {
+  font-size: 14px;
+  font-weight: 600;
+  color: #C9A84C;
+}
+
+.trust-badges {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+}
+
+.trust-badges span {
+  font-size: 15px;
+  color: #B0B8C8;
+  white-space: nowrap;
+}
+
+/* ========================================
+   SECTION 6 — FAQ
+   ======================================== */
+
+.faq {
+  background: #FFFFFF;
+  padding: 80px 0;
+}
+
+.faq h2 {
+  text-align: center;
+  font-size: 36px;
+  color: #0A1628;
+  margin-bottom: 48px;
+}
+
+.faq-list {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.faq-question {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.faq-question h3 {
+  font-family: 'Inter', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: #0A1628;
+  flex: 1;
+  padding-right: 16px;
+}
+
+.faq-arrow {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #C9A84C;
+  font-size: 20px;
+  transition: transform 0.3s;
+  flex-shrink: 0;
+}
+
+.faq-item.open .faq-arrow {
+  transform: rotate(180deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.faq-answer-inner {
+  padding-bottom: 20px;
+  font-size: 15px;
+  color: #5A6577;
+  line-height: 1.7;
+}
+
+/* ========================================
+   SECTION 7 — FOOTER CTA
+   ======================================== */
+
+.footer-cta {
+  background: #0A1628;
+  padding: 80px 0 40px;
+  text-align: center;
+}
+
+.footer-cta h2 {
+  font-size: 36px;
+  color: #FFFFFF;
+  margin-bottom: 16px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.footer-cta .footer-body {
+  font-size: 17px;
+  color: #B0B8C8;
+  max-width: 600px;
+  margin: 0 auto 32px;
+  line-height: 1.6;
+}
+
+.footer-cta-btn {
+  display: inline-block;
+  background: #C9A84C;
+  color: #0A1628;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  padding: 16px 40px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  margin-bottom: 16px;
+}
+
+.footer-cta-btn:hover {
+  background: #d4b65e;
+  transform: translateY(-2px);
+}
+
+.footer-text-line {
+  font-size: 15px;
+  color: #8A94A6;
+  margin-bottom: 48px;
+}
+
+.footer-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin-bottom: 24px;
+}
+
+.footer-copyright {
+  font-size: 13px;
+  color: #5A6577;
+}
+
+/* ========================================
+   RESPONSIVE — MOBILE
+   ======================================== */
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 120px 0 60px;
+  }
+
+  .hero h1 {
+    font-size: 32px;
+  }
+
+  .hero-sub {
+    font-size: 17px;
+  }
+
+  .hero-cta {
+    display: block;
+    width: 100%;
+    font-size: 17px;
+    padding: 16px;
+  }
+
+  .trust-bar {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .trust-bar .dot {
+    display: none;
+  }
+
+  .how-it-works h2,
+  .form-section h2,
+  .social-proof h2,
+  .faq h2,
+  .footer-cta h2 {
+    font-size: 28px;
+  }
+
+  .steps {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .step {
+    max-width: 100%;
+  }
+
+  .form-card {
+    padding: 24px;
+  }
+
+  .testimonials {
+    flex-direction: column;
+  }
+
+  .trust-badges {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .faq-question h3 {
+    font-size: 16px;
+  }
+
+  .footer-cta h2 {
+    font-size: 28px;
+  }
+
+  .footer-cta-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+  }
 }
 </style>
 </head>
 <body>
 
-<div class="phone-frame">
-  <div class="notch"><div class="notch-camera"></div></div>
+<!-- ======== SECTION 1 — STICKY HEADER ======== -->
+<header class="header">
+  <div class="container">
+    <div class="header-logo">Flowave</div>
+    <button class="header-cta" onclick="scrollToForm()">Get Free Help</button>
+  </div>
+</header>
 
-  <div class="status-bar">
-    <div class="status-bar-left">
-      <div class="signal-bars">
-        <div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div>
+<!-- ======== SECTION 2 — HERO ======== -->
+<section class="hero">
+  <div class="container">
+    <h1>You Were Hurt. It Wasn't Your Fault. We Can Help.</h1>
+    <p class="hero-sub">Find out in minutes if you have a case — at no cost to you, ever.</p>
+    <button class="hero-cta" onclick="scrollToForm()">Get My Free Case Review &rarr;</button>
+    <p class="hero-text-line">Or text HELP to 55555 — we'll reach out within the hour</p>
+    <div class="trust-bar">
+      <span>100% Free &amp; Confidential</span>
+      <span class="dot">&middot;</span>
+      <span>No Lawyer Speak</span>
+      <span class="dot">&middot;</span>
+      <span>No Obligation</span>
+      <span class="dot">&middot;</span>
+      <span>Results in Minutes</span>
+    </div>
+  </div>
+</section>
+
+<!-- ======== SECTION 3 — HOW IT WORKS ======== -->
+<section class="how-it-works">
+  <div class="container">
+    <h2>Here's how simple it is:</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-title">Tell us what happened</div>
+        <p class="step-body">Fill out a short form (takes about 90 seconds). No legal jargon. Just plain questions.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-title">We review your case</div>
+        <p class="step-body">A real person reviews your info and contacts you fast — usually within the hour.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-title">You get answers</div>
+        <p class="step-body">We'll tell you clearly what your options are. No pressure. No obligation.</p>
       </div>
     </div>
-    <div id="statusTime" style="font-weight:600;font-size:15px;color:#fff;">9:41</div>
-    <div class="status-bar-right">
-      <span style="font-size:12px;color:rgba(255,255,255,0.6);">5G</span>
-      <div class="battery-icon"></div>
-    </div>
   </div>
+</section>
 
-  <div class="chat-header">
-    <span class="header-back">&#8249;</span>
-    <div class="header-avatar">
-      F
-      <div class="online-dot"></div>
-    </div>
-    <div class="header-info">
-      <div class="header-name">Flowave Legal Help</div>
-      <div class="header-sub"><span class="lock-icon">&#128274;</span> Encrypted &middot; SMS</div>
-    </div>
-    <div class="header-actions">
-      <span class="header-action">&#128249;</span>
-      <span class="header-action">&#128222;</span>
-    </div>
-  </div>
+<!-- ======== SECTION 4 — THE FORM ======== -->
+<section class="form-section" id="form-section">
+  <div class="container">
+    <h2>See if you have a case — it's free and takes 2 minutes.</h2>
+    <p class="form-section-sub">Your information is private and never shared without your permission.</p>
 
-  <div class="chat-area" id="chatArea">
-    <div class="timestamp-divider" id="timestamp"></div>
-  </div>
+    <div class="form-card" id="form-card">
+      <form id="lead-form" novalidate>
+        <div class="form-group" id="group-name">
+          <label for="full-name">Full Name *</label>
+          <input type="text" id="full-name" placeholder="First and last name" required>
+          <div class="form-error">Please enter your full name.</div>
+        </div>
 
-  <div class="typing-label" id="typingLabel">Flowave is typing...</div>
-  <div class="typing-indicator" id="typingIndicator">
-    <div class="typing-bubble">
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
+        <div class="form-group" id="group-phone">
+          <label for="phone">Phone Number *</label>
+          <input type="tel" id="phone" placeholder="(555) 000-0000" required>
+          <p class="microcopy">We'll call or text you — whichever you prefer.</p>
+          <div class="form-error">Please enter your phone number.</div>
+        </div>
+
+        <div class="form-group" id="group-email">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" placeholder="you@email.com" required>
+          <div class="form-error">Please enter a valid email address.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="accident-date">Date of Accident</label>
+          <input type="date" id="accident-date">
+          <p class="microcopy">Even if it was months ago, you may still qualify.</p>
+        </div>
+
+        <div class="form-group" id="group-type">
+          <label for="accident-type">Accident Type *</label>
+          <select id="accident-type" required>
+            <option value="">Select accident type...</option>
+            <option value="car-truck">Car or truck accident</option>
+            <option value="slip-fall">Slip and fall</option>
+            <option value="motorcycle">Motorcycle accident</option>
+            <option value="workplace">Workplace injury</option>
+            <option value="dog-bite">Dog bite</option>
+            <option value="rideshare">Rideshare accident (Uber/Lyft)</option>
+            <option value="other">Other</option>
+          </select>
+          <div class="form-error">Please select an accident type.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Briefly describe what happened</label>
+          <textarea id="description" rows="3" placeholder='Ex: "I was rear-ended at a red light" or "I slipped on a wet floor at a store"'></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="location">Where did it happen?</label>
+          <input type="text" id="location" placeholder="City, State (ex: Miami, FL)">
+        </div>
+
+        <div class="form-group">
+          <label for="injuries">Describe your injuries</label>
+          <input type="text" id="injuries" placeholder="Ex: whiplash, back pain, broken arm, concussion">
+        </div>
+
+        <p class="tcpa-text">By submitting, you agree to be contacted by Flowave. Message and data rates may apply. Reply STOP to opt out.</p>
+
+        <button type="submit" class="form-submit">Get My Free Case Review — No Cost, No Obligation &rarr;</button>
+
+        <p class="form-security">&#128274; Your info is encrypted and confidential. We never sell your data.</p>
+      </form>
+    </div>
+
+    <div class="form-success" id="form-success">
+      <div class="checkmark">&#10004;&#65039;</div>
+      <h3>You're all set!</h3>
+      <p>A member of our team will reach out within the hour. Check your phone and email.</p>
+      <p class="success-note">Questions? Text HELP to 55555</p>
     </div>
   </div>
+</section>
 
-  <div class="input-bar">
-    <input type="text" class="input-field" id="inputField" placeholder="Text Message" autocomplete="off" />
-    <button class="send-btn" id="sendBtn" disabled>
-      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-    </button>
+<!-- ======== SECTION 5 — SOCIAL PROOF ======== -->
+<section class="social-proof">
+  <div class="container">
+    <h2>People just like you got the help they needed.</h2>
+    <div class="testimonials">
+      <div class="testimonial-card">
+        <p class="quote">"I didn't even know I had a case until I filled out the form. Three months later, I received a settlement I never expected."</p>
+        <p class="attribution">— Marcia T., Florida</p>
+      </div>
+      <div class="testimonial-card">
+        <p class="quote">"The process was so easy. Someone called me within 30 minutes and explained everything in plain English."</p>
+        <p class="attribution">— James R., Texas</p>
+      </div>
+      <div class="testimonial-card">
+        <p class="quote">"I was nervous about lawyers and legal stuff. They made it simple and never pressured me."</p>
+        <p class="attribution">— Destiny K., Georgia</p>
+      </div>
+    </div>
+    <div class="trust-badges">
+      <span>&#9989; No upfront costs — ever</span>
+      <span>&#9989; You only pay if you win</span>
+      <span>&#9989; Thousands of cases reviewed</span>
+      <span>&#9989; Real people, real help</span>
+    </div>
   </div>
-</div>
+</section>
+
+<!-- ======== SECTION 6 — FAQ ======== -->
+<section class="faq">
+  <div class="container">
+    <h2>Questions? Here are the ones we hear most.</h2>
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h3>Does it cost anything?</h3>
+          <span class="faq-arrow">&#9660;</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">Nothing. Ever. Consultations are completely free. If you move forward with a case, attorneys only get paid if you win — it's called a contingency fee.</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h3>What if the accident wasn't 100% my fault?</h3>
+          <span class="faq-arrow">&#9660;</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">You may still qualify. In most states, you can recover compensation even if you were partially at fault. Fill out the form and we'll sort it out.</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h3>What if it happened a while ago?</h3>
+          <span class="faq-arrow">&#9660;</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">You might still have time. Most states give you 2 years from the date of the accident. Don't wait — the sooner you check, the better.</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h3>Do I have to talk to a lawyer right away?</h3>
+          <span class="faq-arrow">&#9660;</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">No. We'll first reach out to answer your questions and explain your options. Zero pressure.</div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <h3>What if my injuries seem minor?</h3>
+          <span class="faq-arrow">&#9660;</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">Minor injuries can still lead to significant compensation, especially for medical costs, missed work, and pain and suffering. It's always worth checking.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ======== SECTION 7 — FOOTER CTA ======== -->
+<footer class="footer-cta">
+  <div class="container">
+    <h2>Don't wait — the sooner you act, the stronger your case.</h2>
+    <p class="footer-body">Every day matters when it comes to accident claims. Evidence fades. Deadlines exist. Take 2 minutes now.</p>
+    <button class="footer-cta-btn" onclick="scrollToForm()">Start My Free Review &rarr;</button>
+    <p class="footer-text-line">Or text HELP to 55555</p>
+    <div class="footer-divider"></div>
+    <p class="footer-copyright">&copy; 2025 Flowave. All rights reserved.</p>
+  </div>
+</footer>
 
 <script>
-(function() {
-  // --- State ---
-  const STATE_CODES = {
-    'alabama':'AL','alaska':'AK','arizona':'AZ','arkansas':'AR','california':'CA','colorado':'CO',
-    'connecticut':'CT','delaware':'DE','florida':'FL','georgia':'GA','hawaii':'HI','idaho':'ID',
-    'illinois':'IL','indiana':'IN','iowa':'IA','kansas':'KS','kentucky':'KY','louisiana':'LA',
-    'maine':'ME','maryland':'MD','massachusetts':'MA','michigan':'MI','minnesota':'MN',
-    'mississippi':'MS','missouri':'MO','montana':'MT','nebraska':'NE','nevada':'NV',
-    'new hampshire':'NH','new jersey':'NJ','new mexico':'NM','new york':'NY',
-    'north carolina':'NC','north dakota':'ND','ohio':'OH','oklahoma':'OK','oregon':'OR',
-    'pennsylvania':'PA','rhode island':'RI','south carolina':'SC','south dakota':'SD',
-    'tennessee':'TN','texas':'TX','utah':'UT','vermont':'VT','virginia':'VA','washington':'WA',
-    'west virginia':'WV','wisconsin':'WI','wyoming':'WY'
-  };
-  const VALID_ABBRS = new Set(Object.values(STATE_CODES));
-  const HIGH_VALUE_STATES = new Set(['FL','CA','TX','NY','NJ']);
-  const MID_VALUE_STATES = new Set(['IL','PA','GA','AZ','CO']);
+// Smooth scroll to form
+function scrollToForm() {
+  document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
+}
 
-  const YES_WORDS = ['yes','yeah','yep','yup','sure','absolutely','correct','definitely','for sure','ok','okay','of course','affirmative','true','ya','ye','yas','righto','right','mhm','uh huh'];
-  const NO_WORDS = ['no','nope','nah','never','negative','not really','don\'t think so','no way','naw','hell no','not at all'];
+// Form validation and submission
+document.getElementById('lead-form').addEventListener('submit', function(e) {
+  e.preventDefault();
 
-  let step = 0;
-  let locked = false;
-  let cvs = { fault: 0, injury: 0, recency: 0, stateVal: 0, representation: 0 };
-  let leadState = '';
-  let leadName = '';
-  let leadNumber = '';
-
-  // --- DOM ---
-  const chatArea = document.getElementById('chatArea');
-  const inputField = document.getElementById('inputField');
-  const sendBtn = document.getElementById('sendBtn');
-  const typingIndicator = document.getElementById('typingIndicator');
-  const typingLabel = document.getElementById('typingLabel');
-  const timestampEl = document.getElementById('timestamp');
-
-  // Set timestamp
-  function setTimestamp() {
-    const now = new Date();
-    const opts = { weekday: 'short', hour: 'numeric', minute: '2-digit', hour12: true };
-    timestampEl.textContent = now.toLocaleString('en-US', opts);
-    document.getElementById('statusTime').textContent = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
-  }
-  setTimestamp();
-
-  // --- Parsing ---
-  function isYes(text) {
-    const t = text.toLowerCase().trim();
-    return YES_WORDS.some(w => {
-      if (w.includes(' ')) return t.includes(w);
-      return t === w || t.split(/\s+/).includes(w);
-    });
+  // Clear previous errors
+  var groups = document.querySelectorAll('.form-group.error');
+  for (var i = 0; i < groups.length; i++) {
+    groups[i].classList.remove('error');
   }
 
-  function isNo(text) {
-    const t = text.toLowerCase().trim();
-    return NO_WORDS.some(w => {
-      if (w.includes(' ')) return t.includes(w);
-      return t === w || t.split(/\s+/).includes(w);
-    });
+  var valid = true;
+
+  var name = document.getElementById('full-name');
+  if (!name.value.trim()) {
+    document.getElementById('group-name').classList.add('error');
+    valid = false;
   }
 
-  function detectState(text) {
-    const t = text.trim().toLowerCase().replace(/[.,!?]/g, '');
-    // Check full state names first
-    for (const [name, abbr] of Object.entries(STATE_CODES)) {
-      if (t === name || t.includes(name)) return abbr;
+  var phone = document.getElementById('phone');
+  if (!phone.value.trim()) {
+    document.getElementById('group-phone').classList.add('error');
+    valid = false;
+  }
+
+  var email = document.getElementById('email');
+  var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email.value.trim() || !emailPattern.test(email.value.trim())) {
+    document.getElementById('group-email').classList.add('error');
+    valid = false;
+  }
+
+  var type = document.getElementById('accident-type');
+  if (!type.value) {
+    document.getElementById('group-type').classList.add('error');
+    valid = false;
+  }
+
+  if (valid) {
+    document.getElementById('form-card').style.display = 'none';
+    document.getElementById('form-success').classList.add('active');
+    document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
+  }
+});
+
+// FAQ accordion
+function toggleFaq(questionEl) {
+  var item = questionEl.parentElement;
+  var answer = item.querySelector('.faq-answer');
+  var inner = answer.querySelector('.faq-answer-inner');
+
+  if (item.classList.contains('open')) {
+    item.classList.remove('open');
+    answer.style.maxHeight = '0';
+  } else {
+    // Close all other open items
+    var allItems = document.querySelectorAll('.faq-item.open');
+    for (var i = 0; i < allItems.length; i++) {
+      allItems[i].classList.remove('open');
+      allItems[i].querySelector('.faq-answer').style.maxHeight = '0';
     }
-    // Check abbreviations
-    const words = t.toUpperCase().split(/\s+/);
-    for (const w of words) {
-      if (VALID_ABBRS.has(w)) return w;
-    }
-    // Check if input IS a 2-letter abbreviation
-    const stripped = t.toUpperCase().replace(/[^A-Z]/g, '');
-    if (stripped.length === 2 && VALID_ABBRS.has(stripped)) return stripped;
-    return null;
+    item.classList.add('open');
+    answer.style.maxHeight = inner.scrollHeight + 'px';
   }
-
-  function parseNameNumber(text) {
-    const t = text.trim();
-    // Extract phone number: 10 digits possibly with separators
-    const phoneMatch = t.match(/(\d[\d\s\-\.\(\)]{8,}\d)/);
-    let number = null;
-    if (phoneMatch) {
-      const digits = phoneMatch[1].replace(/\D/g, '');
-      if (digits.length >= 10) number = digits.slice(-10);
-    }
-    // Extract name: first word that isn't part of the phone number
-    let name = null;
-    const cleaned = t.replace(/(\d[\d\s\-\.\(\)]{8,}\d)/, '').replace(/[,\-]/g, ' ').trim();
-    const words = cleaned.split(/\s+/).filter(w => w.length > 0 && !/^\d+$/.test(w));
-    if (words.length > 0) name = words[0].charAt(0).toUpperCase() + words[0].slice(1).toLowerCase();
-    return { name, number };
-  }
-
-  // --- Message rendering ---
-  function addMessage(text, type) {
-    const row = document.createElement('div');
-    row.className = 'message-row ' + type;
-    const bubble = document.createElement('div');
-    bubble.className = 'message-bubble';
-    bubble.textContent = text;
-    row.appendChild(bubble);
-    chatArea.appendChild(row);
-    scrollToBottom();
-  }
-
-  function addReportCard() {
-    const total = cvs.fault + cvs.injury + cvs.recency + cvs.stateVal + cvs.representation;
-    let tier, tierLabel, payout;
-    if (total >= 75) { tier = 'A'; tierLabel = 'Premium Lead'; payout = '$200 – $600'; }
-    else if (total >= 50) { tier = 'B'; tierLabel = 'Qualified Lead'; payout = '$80 – $200'; }
-    else if (total >= 25) { tier = 'C'; tierLabel = 'Standard Lead'; payout = '$20 – $80'; }
-    else { tier = 'D'; tierLabel = 'Low Priority'; payout = 'Nurture only'; }
-
-    const tierClass = 'tier-' + tier.toLowerCase();
-
-    const card = document.createElement('div');
-    card.className = 'report-card';
-    card.innerHTML = `
-      <div class="report-header ${tierClass}">
-        <div class="report-title">FLOWAVE LEAD REPORT</div>
-        <div class="report-tier">${tier}</div>
-        <div class="report-tier-label">${tierLabel}</div>
-      </div>
-      <div class="report-body">
-        <div class="report-row" style="flex-direction:column;align-items:stretch;">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span class="report-label">CVS Score</span>
-            <span class="report-value">${total}/100</span>
-          </div>
-          <div class="score-bar-container">
-            <div class="score-bar-track">
-              <div class="score-bar-fill ${tierClass}" id="scoreBarFill"></div>
-            </div>
-          </div>
-        </div>
-        <div class="report-row">
-          <span class="report-label">State</span>
-          <span class="report-value">${leadState}</span>
-        </div>
-        <div class="report-row">
-          <span class="report-label">Attorney Status</span>
-          <span class="report-value">Unrepresented &#9989;</span>
-        </div>
-        <div class="report-row">
-          <span class="report-label">Estimated Payout</span>
-          <span class="report-value">${payout}</span>
-        </div>
-        <div class="report-row">
-          <span class="report-label">Fraud Risk</span>
-          <span class="report-value">Low &#x1F7E2;</span>
-        </div>
-        <div class="report-routing">
-          <div class="report-routing-label">Routing</div>
-          <div class="report-routing-value">Routing to Tier 1 PI Network &mdash; ${leadState} attorneys</div>
-        </div>
-      </div>
-      <div class="report-footer">
-        <div class="report-attribution">Creator EPC Attribution: HELP23 &rarr; Creator ID: 23</div>
-        <button class="restart-btn" onclick="restartDemo()">&#x1F504; Start New Demo</button>
-      </div>
-    `;
-    chatArea.appendChild(card);
-    scrollToBottom();
-
-    // Animate score bar
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const fill = document.getElementById('scoreBarFill');
-        if (fill) fill.style.width = total + '%';
-      });
-    });
-  }
-
-  function addEndCard(message) {
-    const card = document.createElement('div');
-    card.className = 'end-card';
-    card.innerHTML = `
-      <div class="end-card-icon">&#x1F4AC;</div>
-      <div class="end-card-text">${message}</div>
-      <button class="end-restart-btn" onclick="restartDemo()">&#x1F504; Start New Demo</button>
-    `;
-    chatArea.appendChild(card);
-    scrollToBottom();
-  }
-
-  function scrollToBottom() {
-    requestAnimationFrame(() => {
-      chatArea.scrollTop = chatArea.scrollHeight;
-    });
-  }
-
-  function showTyping() {
-    typingIndicator.classList.add('visible');
-    typingLabel.classList.add('visible');
-    scrollToBottom();
-  }
-
-  function hideTyping() {
-    typingIndicator.classList.remove('visible');
-    typingLabel.classList.remove('visible');
-  }
-
-  function botSay(text, delay) {
-    const d = delay || Math.min(800 + text.length * 20, 2200);
-    locked = true;
-    inputField.disabled = true;
-    showTyping();
-    return new Promise(resolve => {
-      setTimeout(() => {
-        hideTyping();
-        addMessage(text, 'incoming');
-        locked = false;
-        inputField.disabled = false;
-        inputField.focus();
-        resolve();
-      }, d);
-    });
-  }
-
-  // --- Conversation flow ---
-  async function startConversation() {
-    step = 1;
-    await botSay("Hey! \u{1F44B} You reached Flowave Legal Help \u{1F6A8} Were you or someone you know injured in a car accident? Reply YES or NO.", 1400);
-  }
-
-  async function handleInput(text) {
-    if (locked) return;
-    addMessage(text, 'outgoing');
-
-    switch(step) {
-      case 1: // Injured?
-        if (isYes(text)) {
-          cvs.injury = 20; // base - ongoing determined next
-          step = 2;
-          await botSay("So sorry to hear that \u{1F614} Are you still dealing with injuries, pain, or medical bills from the accident? Reply YES or NO.");
-        } else if (isNo(text)) {
-          step = -1;
-          await botSay("Got it \u2014 if anything changes or you know someone who was hurt, we're here 24/7. Take care! \u{1F64F}");
-          lockInput();
-          addEndCard("Conversation ended. Lead was not qualified.");
-        } else {
-          await botSay("I didn't catch that \u2014 were you or someone you know injured in a car accident? Reply YES or NO.");
-        }
-        break;
-
-      case 2: // Ongoing injuries?
-        if (isYes(text)) {
-          cvs.injury = 30;
-          step = 3;
-          await botSay("Understood. Was the accident caused by someone else \u2014 even partially? Reply YES or NO.");
-        } else if (isNo(text)) {
-          cvs.injury = 0;
-          step = -1;
-          await botSay("Thanks for sharing. Unfortunately without ongoing impact it may be harder to pursue a claim. Reply INFO if you want general information anyway.");
-          lockInput();
-          addEndCard("Conversation ended. No ongoing injuries reported.");
-        } else {
-          await botSay("Just to clarify \u2014 are you still dealing with injuries, pain, or medical bills? Reply YES or NO.");
-        }
-        break;
-
-      case 3: // Fault?
-        if (isYes(text)) {
-          cvs.fault = 25;
-          step = 4;
-          await botSay("You may qualify for compensation \u{1F4B0} Quick question \u2014 did this accident happen within the last 3 years? Reply YES or NO.");
-        } else if (isNo(text)) {
-          cvs.fault = 0;
-          step = 3; // loop back
-          await botSay("I'm sorry to hear the pain has passed \u2014 but financial and legal damages may still apply. Was anyone else at fault?");
-        } else {
-          await botSay("Was the accident caused by someone else, even partially? Reply YES or NO.");
-        }
-        break;
-
-      case 4: // Within 3 years?
-        if (isYes(text)) {
-          cvs.recency = 20;
-          step = 5;
-          await botSay("Great. What state did the accident happen in? (Just reply with your state, like: FL, Texas, California, NY, etc.)");
-        } else if (isNo(text)) {
-          cvs.recency = 0;
-          step = -1;
-          await botSay("Unfortunately cases outside the 3-year window are harder to pursue in most states. Reply HELP if you'd like more info.");
-          lockInput();
-          addEndCard("Conversation ended. Case outside statute window.");
-        } else {
-          await botSay("Did this accident happen within the last 3 years? Reply YES or NO.");
-        }
-        break;
-
-      case 5: // State
-        const st = detectState(text);
-        if (st) {
-          leadState = st;
-          if (HIGH_VALUE_STATES.has(st)) cvs.stateVal = 15;
-          else if (MID_VALUE_STATES.has(st)) cvs.stateVal = 10;
-          else cvs.stateVal = 5;
-          step = 6;
-          await botSay("Thanks! Last question \u2014 have you already hired an attorney for this accident? Reply YES or NO.");
-        } else {
-          await botSay("I didn't recognize that state. Could you try again? Just type the state abbreviation (like FL, CA, NY) or the full name.");
-        }
-        break;
-
-      case 6: // Has attorney?
-        if (isNo(text)) {
-          cvs.representation = 10;
-          step = 7;
-          await botSay("Great news \u{1F389} Attorneys in " + leadState + " are taking cases like yours at ZERO cost to you. They only get paid if you WIN. Want me to match you with one now? Reply YES to get connected.");
-        } else if (isYes(text)) {
-          cvs.representation = 0;
-          step = -1;
-          await botSay("Understood! If your situation changes or you want a second opinion, we're always here. Take care \u{1F64F}");
-          lockInput();
-          addEndCard("Partial lead \u2014 already represented.");
-        } else {
-          await botSay("Have you already hired an attorney for this accident? Reply YES or NO.");
-        }
-        break;
-
-      case 7: // Connect?
-        if (isYes(text)) {
-          step = 8;
-          await botSay("Almost done! What's your first name and best callback number? (Example: John, 555-867-5309)");
-        } else if (isNo(text)) {
-          step = -1;
-          await botSay("No problem at all! If you change your mind, we're here 24/7. Take care! \u{1F64F}");
-          lockInput();
-          addEndCard("Lead declined connection.");
-        } else {
-          await botSay("Would you like me to match you with a " + leadState + " attorney? Reply YES or NO.");
-        }
-        break;
-
-      case 8: // Name + number
-        const parsed = parseNameNumber(text);
-        if (parsed.name && parsed.number) {
-          leadName = parsed.name;
-          leadNumber = parsed.number.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
-          step = 9;
-          await botSay("Thanks " + leadName + "! \u{1F64C} A licensed " + leadState + " attorney will call you within 2 hours at " + leadNumber + ". Is that the best number for you? Reply YES or NO.");
-        } else if (parsed.name && !parsed.number) {
-          leadName = parsed.name;
-          await botSay("Got your name, " + leadName + "! Could you also share the best callback number? (Example: 555-867-5309)");
-        } else if (!parsed.name && parsed.number) {
-          leadNumber = parsed.number.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
-          await botSay("Got your number! What's your first name?");
-        } else {
-          await botSay("I need your first name and a callback number. Example: John, 555-867-5309");
-        }
-        break;
-
-      case 9: // Confirm number
-        if (isYes(text)) {
-          step = 10;
-          await botSay("You're all set " + leadName + " \u2705 An attorney will be in touch shortly. You deserve to be compensated. Good luck! \u{1F4AA}\n\nReply STOP at any time to opt out.");
-          lockInput();
-          setTimeout(() => { addReportCard(); }, 600);
-        } else if (isNo(text)) {
-          step = 8;
-          await botSay("No problem \u2014 what's the best number to reach you at?");
-        } else {
-          await botSay("Is " + leadNumber + " the best number for you? Reply YES or NO.");
-        }
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  function lockInput() {
-    inputField.disabled = true;
-    sendBtn.disabled = true;
-  }
-
-  // --- Restart ---
-  window.restartDemo = function() {
-    step = 0;
-    locked = false;
-    cvs = { fault: 0, injury: 0, recency: 0, stateVal: 0, representation: 0 };
-    leadState = '';
-    leadName = '';
-    leadNumber = '';
-    chatArea.innerHTML = '<div class="timestamp-divider" id="timestamp"></div>';
-    setTimestamp();
-    inputField.disabled = false;
-    inputField.value = '';
-    sendBtn.disabled = true;
-    hideTyping();
-    startConversation();
-  };
-
-  // --- Events ---
-  inputField.addEventListener('input', () => {
-    sendBtn.disabled = inputField.value.trim().length === 0;
-  });
-
-  inputField.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && inputField.value.trim() && !locked) {
-      send();
-    }
-  });
-
-  sendBtn.addEventListener('click', () => {
-    if (inputField.value.trim() && !locked) send();
-  });
-
-  function send() {
-    const text = inputField.value.trim();
-    inputField.value = '';
-    sendBtn.disabled = true;
-    handleInput(text);
-  }
-
-  // --- Init ---
-  startConversation();
-})();
+}
 </script>
+
 </body>
 </html>

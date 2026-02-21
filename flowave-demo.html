@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flowave SMS Lead Qualification Demo</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0a0a0a;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.phone-frame {
+  width: 390px;
+  height: 844px;
+  background: #000;
+  border-radius: 50px;
+  border: 3px solid #2a2a2a;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Notch */
+.notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 34px;
+  background: #000;
+  border-radius: 0 0 20px 20px;
+  z-index: 100;
+}
+.notch::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 6px;
+  background: #1a1a1a;
+  border-radius: 3px;
+}
+.notch-camera {
+  position: absolute;
+  top: 8px;
+  right: 30px;
+  width: 10px;
+  height: 10px;
+  background: #0c1a2a;
+  border-radius: 50%;
+  border: 1.5px solid #1a2a3a;
+}
+
+/* Status bar */
+.status-bar {
+  height: 54px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 28px 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+  z-index: 50;
+}
+.status-bar-left { width: 60px; text-align: left; }
+.status-bar-right { width: 80px; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
+.battery-icon {
+  width: 22px; height: 10px;
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 2px;
+  position: relative;
+  display: inline-block;
+}
+.battery-icon::before {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 15px; height: 4px;
+  background: #34c759;
+  border-radius: 1px;
+}
+.battery-icon::after {
+  content: '';
+  position: absolute;
+  top: 2px; right: -4px;
+  width: 2px; height: 5px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 0 1px 1px 0;
+}
+.signal-bars { display: flex; align-items: flex-end; gap: 1.5px; height: 10px; }
+.signal-bar { width: 3px; background: #fff; border-radius: 1px; }
+.signal-bar:nth-child(1) { height: 3px; }
+.signal-bar:nth-child(2) { height: 5px; }
+.signal-bar:nth-child(3) { height: 7px; }
+.signal-bar:nth-child(4) { height: 10px; }
+
+/* Header */
+.chat-header {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 8px 16px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 0.5px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+  z-index: 50;
+}
+.header-back {
+  color: #0a84ff;
+  font-size: 22px;
+  font-weight: 300;
+  cursor: pointer;
+}
+.header-avatar {
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, #1e88e5, #0d47a1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  position: relative;
+  flex-shrink: 0;
+}
+.online-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 11px;
+  height: 11px;
+  background: #34c759;
+  border-radius: 50%;
+  border: 2px solid #000;
+}
+.header-info { flex: 1; }
+.header-name {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.header-sub {
+  color: rgba(255,255,255,0.45);
+  font-size: 12px;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.lock-icon { font-size: 10px; }
+.header-actions { display: flex; gap: 16px; }
+.header-action { color: #0a84ff; font-size: 20px; cursor: pointer; }
+
+/* Chat area */
+.chat-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 12px 8px;
+  display: flex;
+  flex-direction: column;
+  scroll-behavior: smooth;
+}
+.chat-area::-webkit-scrollbar { width: 0; }
+
+.timestamp-divider {
+  text-align: center;
+  color: rgba(255,255,255,0.35);
+  font-size: 11px;
+  font-weight: 500;
+  margin: 8px 0 12px;
+}
+
+.message-row {
+  display: flex;
+  margin-bottom: 4px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: msgIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes msgIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+.message-row.incoming { justify-content: flex-start; }
+.message-row.outgoing { justify-content: flex-end; }
+
+.message-bubble {
+  max-width: 78%;
+  padding: 9px 14px;
+  border-radius: 18px;
+  font-size: 15.5px;
+  line-height: 1.35;
+  word-wrap: break-word;
+  position: relative;
+}
+.incoming .message-bubble {
+  background: #1c1c1e;
+  color: #fff;
+  border-bottom-left-radius: 6px;
+}
+.outgoing .message-bubble {
+  background: #0084ff;
+  color: #fff;
+  border-bottom-right-radius: 6px;
+}
+
+/* Tail shapes */
+.message-row.incoming + .message-row.incoming .message-bubble { border-bottom-left-radius: 18px; }
+.message-row.incoming:last-of-type .message-bubble,
+.message-row.incoming + .message-row.outgoing ~ .message-row.incoming .message-bubble { border-bottom-left-radius: 6px; }
+
+/* Typing indicator */
+.typing-indicator {
+  display: none;
+  margin-bottom: 4px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: msgIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.typing-indicator.visible { display: flex; }
+.typing-bubble {
+  background: #1c1c1e;
+  padding: 12px 16px;
+  border-radius: 18px;
+  border-bottom-left-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.typing-dot {
+  width: 7px;
+  height: 7px;
+  background: rgba(255,255,255,0.4);
+  border-radius: 50%;
+  animation: typingBounce 1.4s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+
+.typing-label {
+  color: rgba(255,255,255,0.35);
+  font-size: 11px;
+  padding: 0 4px 6px;
+  display: none;
+}
+.typing-label.visible { display: block; }
+
+/* Input bar */
+.input-bar {
+  padding: 8px 12px 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #000;
+  border-top: 0.5px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.input-field {
+  flex: 1;
+  background: rgba(255,255,255,0.08);
+  border: 0.5px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  padding: 10px 16px;
+  color: #fff;
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+  caret-color: #0a84ff;
+}
+.input-field::placeholder { color: rgba(255,255,255,0.3); }
+.input-field:focus { border-color: rgba(255,255,255,0.2); }
+.send-btn {
+  width: 34px;
+  height: 34px;
+  background: #0a84ff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.15s, opacity 0.15s;
+}
+.send-btn:active { transform: scale(0.9); }
+.send-btn:disabled { opacity: 0.35; cursor: default; }
+.send-btn svg { width: 18px; height: 18px; fill: #fff; }
+
+/* Lead report card */
+.report-card {
+  background: #1c1c1e;
+  border-radius: 16px;
+  overflow: hidden;
+  max-width: 92%;
+  margin: 8px 0;
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+}
+@keyframes cardIn {
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.report-header {
+  padding: 16px 18px;
+  text-align: center;
+}
+.report-header.tier-a { background: linear-gradient(135deg, #1b5e20, #2e7d32); }
+.report-header.tier-b { background: linear-gradient(135deg, #0d47a1, #1565c0); }
+.report-header.tier-c { background: linear-gradient(135deg, #e65100, #f57c00); }
+.report-header.tier-d { background: linear-gradient(135deg, #b71c1c, #c62828); }
+.report-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.85);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.report-tier {
+  font-size: 48px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+.report-tier-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  margin-top: 4px;
+}
+.report-body { padding: 16px 18px; }
+.report-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 0.5px solid rgba(255,255,255,0.06);
+}
+.report-row:last-child { border-bottom: none; }
+.report-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  font-weight: 500;
+}
+.report-value {
+  font-size: 13px;
+  color: #fff;
+  font-weight: 600;
+  text-align: right;
+}
+
+.score-bar-container {
+  width: 100%;
+  margin-top: 4px;
+}
+.score-bar-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.score-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 0;
+}
+.score-bar-fill.tier-a { background: linear-gradient(90deg, #43a047, #66bb6a); }
+.score-bar-fill.tier-b { background: linear-gradient(90deg, #1565c0, #42a5f5); }
+.score-bar-fill.tier-c { background: linear-gradient(90deg, #f57c00, #ffb74d); }
+.score-bar-fill.tier-d { background: linear-gradient(90deg, #c62828, #ef5350); }
+
+.report-routing {
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-top: 10px;
+}
+.report-routing-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.report-routing-value {
+  font-size: 12px;
+  color: #fff;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.report-footer {
+  padding: 14px 18px;
+  border-top: 0.5px solid rgba(255,255,255,0.06);
+}
+.report-attribution {
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  text-align: center;
+  margin-bottom: 12px;
+}
+.restart-btn {
+  width: 100%;
+  padding: 12px;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  border-radius: 12px;
+  color: #0a84ff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.restart-btn:hover { background: rgba(255,255,255,0.12); }
+.restart-btn:active { background: rgba(255,255,255,0.06); }
+
+/* End card (for non-qualified leads) */
+.end-card {
+  background: #1c1c1e;
+  border-radius: 14px;
+  padding: 20px;
+  max-width: 80%;
+  margin: 8px 0;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: msgIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+}
+.end-card-icon { font-size: 28px; margin-bottom: 8px; }
+.end-card-text { color: rgba(255,255,255,0.55); font-size: 13px; line-height: 1.4; margin-bottom: 14px; }
+.end-restart-btn {
+  padding: 10px 24px;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  border-radius: 10px;
+  color: #0a84ff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.end-restart-btn:hover { background: rgba(255,255,255,0.12); }
+
+/* Responsive */
+@media (max-height: 880px) {
+  .phone-frame { height: 95vh; border-radius: 40px; }
+}
+@media (max-width: 420px) {
+  .phone-frame { width: 100vw; height: 100vh; border-radius: 0; border: none; }
+  .notch { display: none; }
+  .status-bar { height: 44px; }
+}
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+  <div class="notch"><div class="notch-camera"></div></div>
+
+  <div class="status-bar">
+    <div class="status-bar-left">
+      <div class="signal-bars">
+        <div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div>
+      </div>
+    </div>
+    <div id="statusTime" style="font-weight:600;font-size:15px;color:#fff;">9:41</div>
+    <div class="status-bar-right">
+      <span style="font-size:12px;color:rgba(255,255,255,0.6);">5G</span>
+      <div class="battery-icon"></div>
+    </div>
+  </div>
+
+  <div class="chat-header">
+    <span class="header-back">&#8249;</span>
+    <div class="header-avatar">
+      F
+      <div class="online-dot"></div>
+    </div>
+    <div class="header-info">
+      <div class="header-name">Flowave Legal Help</div>
+      <div class="header-sub"><span class="lock-icon">&#128274;</span> Encrypted &middot; SMS</div>
+    </div>
+    <div class="header-actions">
+      <span class="header-action">&#128249;</span>
+      <span class="header-action">&#128222;</span>
+    </div>
+  </div>
+
+  <div class="chat-area" id="chatArea">
+    <div class="timestamp-divider" id="timestamp"></div>
+  </div>
+
+  <div class="typing-label" id="typingLabel">Flowave is typing...</div>
+  <div class="typing-indicator" id="typingIndicator">
+    <div class="typing-bubble">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </div>
+  </div>
+
+  <div class="input-bar">
+    <input type="text" class="input-field" id="inputField" placeholder="Text Message" autocomplete="off" />
+    <button class="send-btn" id="sendBtn" disabled>
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function() {
+  // --- State ---
+  const STATE_CODES = {
+    'alabama':'AL','alaska':'AK','arizona':'AZ','arkansas':'AR','california':'CA','colorado':'CO',
+    'connecticut':'CT','delaware':'DE','florida':'FL','georgia':'GA','hawaii':'HI','idaho':'ID',
+    'illinois':'IL','indiana':'IN','iowa':'IA','kansas':'KS','kentucky':'KY','louisiana':'LA',
+    'maine':'ME','maryland':'MD','massachusetts':'MA','michigan':'MI','minnesota':'MN',
+    'mississippi':'MS','missouri':'MO','montana':'MT','nebraska':'NE','nevada':'NV',
+    'new hampshire':'NH','new jersey':'NJ','new mexico':'NM','new york':'NY',
+    'north carolina':'NC','north dakota':'ND','ohio':'OH','oklahoma':'OK','oregon':'OR',
+    'pennsylvania':'PA','rhode island':'RI','south carolina':'SC','south dakota':'SD',
+    'tennessee':'TN','texas':'TX','utah':'UT','vermont':'VT','virginia':'VA','washington':'WA',
+    'west virginia':'WV','wisconsin':'WI','wyoming':'WY'
+  };
+  const VALID_ABBRS = new Set(Object.values(STATE_CODES));
+  const HIGH_VALUE_STATES = new Set(['FL','CA','TX','NY','NJ']);
+  const MID_VALUE_STATES = new Set(['IL','PA','GA','AZ','CO']);
+
+  const YES_WORDS = ['yes','yeah','yep','yup','sure','absolutely','correct','definitely','for sure','ok','okay','of course','affirmative','true','ya','ye','yas','righto','right','mhm','uh huh'];
+  const NO_WORDS = ['no','nope','nah','never','negative','not really','don\'t think so','no way','naw','hell no','not at all'];
+
+  let step = 0;
+  let locked = false;
+  let cvs = { fault: 0, injury: 0, recency: 0, stateVal: 0, representation: 0 };
+  let leadState = '';
+  let leadName = '';
+  let leadNumber = '';
+
+  // --- DOM ---
+  const chatArea = document.getElementById('chatArea');
+  const inputField = document.getElementById('inputField');
+  const sendBtn = document.getElementById('sendBtn');
+  const typingIndicator = document.getElementById('typingIndicator');
+  const typingLabel = document.getElementById('typingLabel');
+  const timestampEl = document.getElementById('timestamp');
+
+  // Set timestamp
+  function setTimestamp() {
+    const now = new Date();
+    const opts = { weekday: 'short', hour: 'numeric', minute: '2-digit', hour12: true };
+    timestampEl.textContent = now.toLocaleString('en-US', opts);
+    document.getElementById('statusTime').textContent = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
+  }
+  setTimestamp();
+
+  // --- Parsing ---
+  function isYes(text) {
+    const t = text.toLowerCase().trim();
+    return YES_WORDS.some(w => {
+      if (w.includes(' ')) return t.includes(w);
+      return t === w || t.split(/\s+/).includes(w);
+    });
+  }
+
+  function isNo(text) {
+    const t = text.toLowerCase().trim();
+    return NO_WORDS.some(w => {
+      if (w.includes(' ')) return t.includes(w);
+      return t === w || t.split(/\s+/).includes(w);
+    });
+  }
+
+  function detectState(text) {
+    const t = text.trim().toLowerCase().replace(/[.,!?]/g, '');
+    // Check full state names first
+    for (const [name, abbr] of Object.entries(STATE_CODES)) {
+      if (t === name || t.includes(name)) return abbr;
+    }
+    // Check abbreviations
+    const words = t.toUpperCase().split(/\s+/);
+    for (const w of words) {
+      if (VALID_ABBRS.has(w)) return w;
+    }
+    // Check if input IS a 2-letter abbreviation
+    const stripped = t.toUpperCase().replace(/[^A-Z]/g, '');
+    if (stripped.length === 2 && VALID_ABBRS.has(stripped)) return stripped;
+    return null;
+  }
+
+  function parseNameNumber(text) {
+    const t = text.trim();
+    // Extract phone number: 10 digits possibly with separators
+    const phoneMatch = t.match(/(\d[\d\s\-\.\(\)]{8,}\d)/);
+    let number = null;
+    if (phoneMatch) {
+      const digits = phoneMatch[1].replace(/\D/g, '');
+      if (digits.length >= 10) number = digits.slice(-10);
+    }
+    // Extract name: first word that isn't part of the phone number
+    let name = null;
+    const cleaned = t.replace(/(\d[\d\s\-\.\(\)]{8,}\d)/, '').replace(/[,\-]/g, ' ').trim();
+    const words = cleaned.split(/\s+/).filter(w => w.length > 0 && !/^\d+$/.test(w));
+    if (words.length > 0) name = words[0].charAt(0).toUpperCase() + words[0].slice(1).toLowerCase();
+    return { name, number };
+  }
+
+  // --- Message rendering ---
+  function addMessage(text, type) {
+    const row = document.createElement('div');
+    row.className = 'message-row ' + type;
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+    bubble.textContent = text;
+    row.appendChild(bubble);
+    chatArea.appendChild(row);
+    scrollToBottom();
+  }
+
+  function addReportCard() {
+    const total = cvs.fault + cvs.injury + cvs.recency + cvs.stateVal + cvs.representation;
+    let tier, tierLabel, payout;
+    if (total >= 75) { tier = 'A'; tierLabel = 'Premium Lead'; payout = '$200 – $600'; }
+    else if (total >= 50) { tier = 'B'; tierLabel = 'Qualified Lead'; payout = '$80 – $200'; }
+    else if (total >= 25) { tier = 'C'; tierLabel = 'Standard Lead'; payout = '$20 – $80'; }
+    else { tier = 'D'; tierLabel = 'Low Priority'; payout = 'Nurture only'; }
+
+    const tierClass = 'tier-' + tier.toLowerCase();
+
+    const card = document.createElement('div');
+    card.className = 'report-card';
+    card.innerHTML = `
+      <div class="report-header ${tierClass}">
+        <div class="report-title">FLOWAVE LEAD REPORT</div>
+        <div class="report-tier">${tier}</div>
+        <div class="report-tier-label">${tierLabel}</div>
+      </div>
+      <div class="report-body">
+        <div class="report-row" style="flex-direction:column;align-items:stretch;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span class="report-label">CVS Score</span>
+            <span class="report-value">${total}/100</span>
+          </div>
+          <div class="score-bar-container">
+            <div class="score-bar-track">
+              <div class="score-bar-fill ${tierClass}" id="scoreBarFill"></div>
+            </div>
+          </div>
+        </div>
+        <div class="report-row">
+          <span class="report-label">State</span>
+          <span class="report-value">${leadState}</span>
+        </div>
+        <div class="report-row">
+          <span class="report-label">Attorney Status</span>
+          <span class="report-value">Unrepresented &#9989;</span>
+        </div>
+        <div class="report-row">
+          <span class="report-label">Estimated Payout</span>
+          <span class="report-value">${payout}</span>
+        </div>
+        <div class="report-row">
+          <span class="report-label">Fraud Risk</span>
+          <span class="report-value">Low &#x1F7E2;</span>
+        </div>
+        <div class="report-routing">
+          <div class="report-routing-label">Routing</div>
+          <div class="report-routing-value">Routing to Tier 1 PI Network &mdash; ${leadState} attorneys</div>
+        </div>
+      </div>
+      <div class="report-footer">
+        <div class="report-attribution">Creator EPC Attribution: HELP23 &rarr; Creator ID: 23</div>
+        <button class="restart-btn" onclick="restartDemo()">&#x1F504; Start New Demo</button>
+      </div>
+    `;
+    chatArea.appendChild(card);
+    scrollToBottom();
+
+    // Animate score bar
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const fill = document.getElementById('scoreBarFill');
+        if (fill) fill.style.width = total + '%';
+      });
+    });
+  }
+
+  function addEndCard(message) {
+    const card = document.createElement('div');
+    card.className = 'end-card';
+    card.innerHTML = `
+      <div class="end-card-icon">&#x1F4AC;</div>
+      <div class="end-card-text">${message}</div>
+      <button class="end-restart-btn" onclick="restartDemo()">&#x1F504; Start New Demo</button>
+    `;
+    chatArea.appendChild(card);
+    scrollToBottom();
+  }
+
+  function scrollToBottom() {
+    requestAnimationFrame(() => {
+      chatArea.scrollTop = chatArea.scrollHeight;
+    });
+  }
+
+  function showTyping() {
+    typingIndicator.classList.add('visible');
+    typingLabel.classList.add('visible');
+    scrollToBottom();
+  }
+
+  function hideTyping() {
+    typingIndicator.classList.remove('visible');
+    typingLabel.classList.remove('visible');
+  }
+
+  function botSay(text, delay) {
+    const d = delay || Math.min(800 + text.length * 20, 2200);
+    locked = true;
+    inputField.disabled = true;
+    showTyping();
+    return new Promise(resolve => {
+      setTimeout(() => {
+        hideTyping();
+        addMessage(text, 'incoming');
+        locked = false;
+        inputField.disabled = false;
+        inputField.focus();
+        resolve();
+      }, d);
+    });
+  }
+
+  // --- Conversation flow ---
+  async function startConversation() {
+    step = 1;
+    await botSay("Hey! \u{1F44B} You reached Flowave Legal Help \u{1F6A8} Were you or someone you know injured in a car accident? Reply YES or NO.", 1400);
+  }
+
+  async function handleInput(text) {
+    if (locked) return;
+    addMessage(text, 'outgoing');
+
+    switch(step) {
+      case 1: // Injured?
+        if (isYes(text)) {
+          cvs.injury = 20; // base - ongoing determined next
+          step = 2;
+          await botSay("So sorry to hear that \u{1F614} Are you still dealing with injuries, pain, or medical bills from the accident? Reply YES or NO.");
+        } else if (isNo(text)) {
+          step = -1;
+          await botSay("Got it \u2014 if anything changes or you know someone who was hurt, we're here 24/7. Take care! \u{1F64F}");
+          lockInput();
+          addEndCard("Conversation ended. Lead was not qualified.");
+        } else {
+          await botSay("I didn't catch that \u2014 were you or someone you know injured in a car accident? Reply YES or NO.");
+        }
+        break;
+
+      case 2: // Ongoing injuries?
+        if (isYes(text)) {
+          cvs.injury = 30;
+          step = 3;
+          await botSay("Understood. Was the accident caused by someone else \u2014 even partially? Reply YES or NO.");
+        } else if (isNo(text)) {
+          cvs.injury = 0;
+          step = -1;
+          await botSay("Thanks for sharing. Unfortunately without ongoing impact it may be harder to pursue a claim. Reply INFO if you want general information anyway.");
+          lockInput();
+          addEndCard("Conversation ended. No ongoing injuries reported.");
+        } else {
+          await botSay("Just to clarify \u2014 are you still dealing with injuries, pain, or medical bills? Reply YES or NO.");
+        }
+        break;
+
+      case 3: // Fault?
+        if (isYes(text)) {
+          cvs.fault = 25;
+          step = 4;
+          await botSay("You may qualify for compensation \u{1F4B0} Quick question \u2014 did this accident happen within the last 3 years? Reply YES or NO.");
+        } else if (isNo(text)) {
+          cvs.fault = 0;
+          step = 3; // loop back
+          await botSay("I'm sorry to hear the pain has passed \u2014 but financial and legal damages may still apply. Was anyone else at fault?");
+        } else {
+          await botSay("Was the accident caused by someone else, even partially? Reply YES or NO.");
+        }
+        break;
+
+      case 4: // Within 3 years?
+        if (isYes(text)) {
+          cvs.recency = 20;
+          step = 5;
+          await botSay("Great. What state did the accident happen in? (Just reply with your state, like: FL, Texas, California, NY, etc.)");
+        } else if (isNo(text)) {
+          cvs.recency = 0;
+          step = -1;
+          await botSay("Unfortunately cases outside the 3-year window are harder to pursue in most states. Reply HELP if you'd like more info.");
+          lockInput();
+          addEndCard("Conversation ended. Case outside statute window.");
+        } else {
+          await botSay("Did this accident happen within the last 3 years? Reply YES or NO.");
+        }
+        break;
+
+      case 5: // State
+        const st = detectState(text);
+        if (st) {
+          leadState = st;
+          if (HIGH_VALUE_STATES.has(st)) cvs.stateVal = 15;
+          else if (MID_VALUE_STATES.has(st)) cvs.stateVal = 10;
+          else cvs.stateVal = 5;
+          step = 6;
+          await botSay("Thanks! Last question \u2014 have you already hired an attorney for this accident? Reply YES or NO.");
+        } else {
+          await botSay("I didn't recognize that state. Could you try again? Just type the state abbreviation (like FL, CA, NY) or the full name.");
+        }
+        break;
+
+      case 6: // Has attorney?
+        if (isNo(text)) {
+          cvs.representation = 10;
+          step = 7;
+          await botSay("Great news \u{1F389} Attorneys in " + leadState + " are taking cases like yours at ZERO cost to you. They only get paid if you WIN. Want me to match you with one now? Reply YES to get connected.");
+        } else if (isYes(text)) {
+          cvs.representation = 0;
+          step = -1;
+          await botSay("Understood! If your situation changes or you want a second opinion, we're always here. Take care \u{1F64F}");
+          lockInput();
+          addEndCard("Partial lead \u2014 already represented.");
+        } else {
+          await botSay("Have you already hired an attorney for this accident? Reply YES or NO.");
+        }
+        break;
+
+      case 7: // Connect?
+        if (isYes(text)) {
+          step = 8;
+          await botSay("Almost done! What's your first name and best callback number? (Example: John, 555-867-5309)");
+        } else if (isNo(text)) {
+          step = -1;
+          await botSay("No problem at all! If you change your mind, we're here 24/7. Take care! \u{1F64F}");
+          lockInput();
+          addEndCard("Lead declined connection.");
+        } else {
+          await botSay("Would you like me to match you with a " + leadState + " attorney? Reply YES or NO.");
+        }
+        break;
+
+      case 8: // Name + number
+        const parsed = parseNameNumber(text);
+        if (parsed.name && parsed.number) {
+          leadName = parsed.name;
+          leadNumber = parsed.number.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+          step = 9;
+          await botSay("Thanks " + leadName + "! \u{1F64C} A licensed " + leadState + " attorney will call you within 2 hours at " + leadNumber + ". Is that the best number for you? Reply YES or NO.");
+        } else if (parsed.name && !parsed.number) {
+          leadName = parsed.name;
+          await botSay("Got your name, " + leadName + "! Could you also share the best callback number? (Example: 555-867-5309)");
+        } else if (!parsed.name && parsed.number) {
+          leadNumber = parsed.number.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+          await botSay("Got your number! What's your first name?");
+        } else {
+          await botSay("I need your first name and a callback number. Example: John, 555-867-5309");
+        }
+        break;
+
+      case 9: // Confirm number
+        if (isYes(text)) {
+          step = 10;
+          await botSay("You're all set " + leadName + " \u2705 An attorney will be in touch shortly. You deserve to be compensated. Good luck! \u{1F4AA}\n\nReply STOP at any time to opt out.");
+          lockInput();
+          setTimeout(() => { addReportCard(); }, 600);
+        } else if (isNo(text)) {
+          step = 8;
+          await botSay("No problem \u2014 what's the best number to reach you at?");
+        } else {
+          await botSay("Is " + leadNumber + " the best number for you? Reply YES or NO.");
+        }
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  function lockInput() {
+    inputField.disabled = true;
+    sendBtn.disabled = true;
+  }
+
+  // --- Restart ---
+  window.restartDemo = function() {
+    step = 0;
+    locked = false;
+    cvs = { fault: 0, injury: 0, recency: 0, stateVal: 0, representation: 0 };
+    leadState = '';
+    leadName = '';
+    leadNumber = '';
+    chatArea.innerHTML = '<div class="timestamp-divider" id="timestamp"></div>';
+    setTimestamp();
+    inputField.disabled = false;
+    inputField.value = '';
+    sendBtn.disabled = true;
+    hideTyping();
+    startConversation();
+  };
+
+  // --- Events ---
+  inputField.addEventListener('input', () => {
+    sendBtn.disabled = inputField.value.trim().length === 0;
+  });
+
+  inputField.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && inputField.value.trim() && !locked) {
+      send();
+    }
+  });
+
+  sendBtn.addEventListener('click', () => {
+    if (inputField.value.trim() && !locked) send();
+  });
+
+  function send() {
+    const text = inputField.value.trim();
+    inputField.value = '';
+    sendBtn.disabled = true;
+    handleInput(text);
+  }
+
+  // --- Init ---
+  startConversation();
+})();
+</script>
+</body>
+</html>
